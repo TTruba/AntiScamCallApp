@@ -1,0 +1,1 @@
+ja kautkas jainstelē tad jāpieliek priekšā "npx expo install"
