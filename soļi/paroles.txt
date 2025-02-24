@@ -1,0 +1,2 @@
+datubāze (root, root)
+testuser (testuser, test)

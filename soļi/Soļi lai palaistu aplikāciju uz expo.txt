@@ -1,0 +1,6 @@
+1) cd C:\Users\Truba\Desktop\AntiScamCallApp\ASCA
+2) npx expo start vai npx expo start --clear (ja vajag notīrīt cache)
+3) cd C:\Users\Truba\Desktop\AntiScamCallApp\ASCA\backend
+4) node server.js
+5) palaiž Xamp un ieslēdz apache un mysql
+6) http://localhost/phpmyadmin/ lai tiktu pie datubāzes
