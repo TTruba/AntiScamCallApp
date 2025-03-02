@@ -1,33 +1,46 @@
 import React, { useState } from 'react';
-import { SafeAreaView, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { SafeAreaView, TextInput, TouchableOpacity, Text, StyleSheet, Alert } from 'react-native';
 
 export default function RegisterScreen({ navigation }) {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [emailFlashing, setEmailFlashing] = useState(false);
+    const [usernameFlashing, setUsernameFlashing] = useState(false);
     const [passwordFlashing, setPasswordFlashing] = useState(false);
 
-    const handleRegister = () => {
-        if (email === '' || password === '') {
-            // Trigger flashing effect for missing fields
-            if (email === '') setEmailFlashing(true);
+    const handleRegister = async () => {
+        if (!username || !password) {
+            if (username === '') setUsernameFlashing(true);
             if (password === '') setPasswordFlashing(true);
 
-            // Flash the input boxes twice (using setTimeout)
             setTimeout(() => {
-                setEmailFlashing(false);
+                setUsernameFlashing(false);
                 setPasswordFlashing(false);
-            }, 300); // Time for flash duration
+            }, 300);
 
             setTimeout(() => {
-                setEmailFlashing(false);
+                setUsernameFlashing(false);
                 setPasswordFlashing(false);
-            }, 600); // Time between flashes
-        } else {
-            // Reset the inputs after registration
-            setEmail('');
-            setPassword('');
-            navigation.navigate('Login');
+            }, 600);
+            return;
+        }
+
+        try {
+            const response = await fetch('http://192.168.0.104:5000/register', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password }),
+            });
+
+            const data = await response.json();
+
+            if (response.status === 201) {
+                Alert.alert("Success", data.message);
+                navigation.navigate("Login");
+            } else {
+                Alert.alert("Error", data.message);
+            }
+        } catch (error) {
+            Alert.alert("Error", "Unable to connect to server");
         }
     };
 
@@ -36,10 +49,10 @@ export default function RegisterScreen({ navigation }) {
             <Text style={styles.text}>Register</Text>
 
             <TextInput
-                style={[styles.input, emailFlashing && styles.flashing]}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
+                style={[styles.input, usernameFlashing && styles.flashing]}
+                placeholder="Username"
+                value={username}
+                onChangeText={setUsername}
                 placeholderTextColor="#ddd"
             />
             <TextInput
@@ -96,7 +109,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     flashing: {
-        backgroundColor: '#ff5555', // Light grey flash color
-        borderColor: '#ff5555', // Light grey border
+        backgroundColor: '#ff5555',
+        borderColor: '#ff5555',
     }
 });

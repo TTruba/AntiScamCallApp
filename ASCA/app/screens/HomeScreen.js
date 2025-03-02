@@ -1,8 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { SafeAreaView, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Button } from 'react-native';
-import axios from 'axios';
+import React, { useState, useContext, useEffect, useLayoutEffect } from 'react';
+import { SafeAreaView, Text, TouchableOpacity, StyleSheet, Alert, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthContext } from '../backend/AuthContext';
+import { AuthContext } from '../../backend/AuthContext';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Import an icon
 
 export default function HomeScreen({ navigation }) {
     const { logout } = useContext(AuthContext);
@@ -12,7 +13,7 @@ export default function HomeScreen({ navigation }) {
         const checkAuth = async () => {
             const token = await AsyncStorage.getItem('token');
             if (!token) {
-                navigation.replace('Login');
+                navigation.navigate("Login");
             } else {
                 setUsername('User'); // Replace with actual user data from backend if needed
             }
@@ -20,19 +21,36 @@ export default function HomeScreen({ navigation }) {
         checkAuth();
     }, []);
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         Alert.alert("Logout", "Are you sure you want to logout?", [
             { text: "Cancel", style: "cancel" },
-            { text: "Yes", onPress: logout }
+            {
+                text: "Yes", onPress: async () => {
+                    try {
+                        await AsyncStorage.removeItem("token");
+                        logout();
+                        navigation.navigate("Login");
+                    } catch (error) {
+                        console.error("Logout failed:", error);
+                    }
+                }
+            }
         ]);
     };
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity onPress={handleLogout} style={{ marginRight: 15 }}>
+                    <Icon name="logout" size={24} color="#ff5555" />
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation]);
 
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.text}>Welcome, {username}</Text>
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <Text style={styles.logoutButtonText}>Logout</Text>
-            </TouchableOpacity>
         </SafeAreaView>
     );
 }

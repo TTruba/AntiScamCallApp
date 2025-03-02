@@ -1,2 +1,2 @@
 datubāze (root, root)
-testuser (testuser, test)
+testuser (testuser, test123)

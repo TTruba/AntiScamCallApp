@@ -4,31 +4,34 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-    const [userToken, setUserToken] = useState(null);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        // Check if user is logged in on app start
-        const checkLoginStatus = async () => {
+        const loadUser = async () => {
             const token = await AsyncStorage.getItem('token');
             if (token) {
-                setUserToken(token);
+                setUser({ token });
             }
         };
-        checkLoginStatus();
+        loadUser();
     }, []);
 
     const login = async (token) => {
+        setUser({ token });
         await AsyncStorage.setItem('token', token);
-        setUserToken(token);
     };
 
     const logout = async () => {
-        await AsyncStorage.removeItem('token');
-        setUserToken(null);
+        try {
+            await AsyncStorage.removeItem('token');
+            setUser(null);
+        } catch (error) {
+            console.error("Error clearing token:", error);
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ userToken, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
